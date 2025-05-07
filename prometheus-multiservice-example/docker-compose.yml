@@ -1,0 +1,77 @@
+
+
+services:
+  product-service:
+    build: ../product-service
+    container_name: product-service-app
+    ports:
+      - "5001:5001" # Expose product service on host port 5001
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  order-service:
+    build: ../order-service
+    container_name: order-service-app
+    ports:
+      - "5002:5002" # Expose order service on host port 5002
+    restart: unless-stopped
+    networks:
+      - app-network
+    # depends_on: # Optional: if order service strictly needs product/inventory to be up first
+    #   - product-service
+    #   - inventory-service
+
+  inventory-service:
+    build: ../inventory-service
+    container_name: inventory-service-app
+    ports:
+      - "5003:5003" # Expose inventory service on host port 5003
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  prometheus:
+    image: prom/prometheus:v2.47.2 # Specify a version for stability
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      # Optional: Persist Prometheus data
+      # - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle' # Allows reloading config via HTTP POST /-/reload
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  grafana:
+   image: grafana/grafana-oss:10.2.2 # Specify a version
+   container_name: grafana
+   ports:
+     - "3000:3000"
+   volumes:
+     - grafana_data:/var/lib/grafana
+     # Optional: Provision datasources and dashboards
+     # - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+     # - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+   restart: unless-stopped
+   environment:
+     - GF_SECURITY_ADMIN_USER=admin
+     - GF_SECURITY_ADMIN_PASSWORD=admin
+   networks:
+     - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+
+volumes:
+  prometheus_data:
+  grafana_data:

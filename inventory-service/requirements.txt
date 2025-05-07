@@ -1,0 +1,5 @@
+FastAPI
+Pydantic
+uvicorn
+httpx
+prometheus_fastapi_instrumentator

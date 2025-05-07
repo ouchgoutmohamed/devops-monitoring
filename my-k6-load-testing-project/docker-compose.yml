@@ -1,0 +1,31 @@
+ # This line should be removed or commented out
+
+services:
+  product-service:
+    build: ../product-service # Changed from 'image:' to 'build:'
+    networks:
+      - app-network
+
+  order-service:
+    build: ../order-service # Changed from 'image:' to 'build:'
+    networks:
+      - app-network
+
+  inventory-service:
+    build: ../inventory-service # Changed from 'image:' to 'build:'
+    networks:
+      - app-network
+
+  load-test:
+    build:
+      context: ./load-test
+    depends_on:
+      - product-service
+      - order-service
+      - inventory-service
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,8 @@
+
+Flask
+pydantic
+uvicorn
+pytest
+requests
+asgiref
+prometheus_flask_exporter==0.23.0
