@@ -18,9 +18,7 @@ services:
     restart: unless-stopped
     networks:
       - app-network
-    # depends_on: # Optional: if order service strictly needs product/inventory to be up first
-    #   - product-service
-    #   - inventory-service
+   
 
   inventory-service:
     build: ../inventory-service
@@ -38,8 +36,7 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      # Optional: Persist Prometheus data
-      # - prometheus_data:/prometheus
+      
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -49,7 +46,24 @@ services:
     restart: unless-stopped
     networks:
       - app-network
-
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - "9100:9100"
+    networks:
+      - app-network
+  
   grafana:
    image: grafana/grafana-oss:10.2.2 # Specify a version
    container_name: grafana
@@ -57,9 +71,6 @@ services:
      - "3000:3000"
    volumes:
      - grafana_data:/var/lib/grafana
-     # Optional: Provision datasources and dashboards
-     # - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-     # - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
    restart: unless-stopped
    environment:
      - GF_SECURITY_ADMIN_USER=admin

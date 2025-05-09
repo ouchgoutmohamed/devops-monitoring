@@ -10,16 +10,15 @@ export let options = {
 
 export default function () {
     // Simulate requests to the product service
-    let productResponse = http.get('http://localhost:5001/products');
+    let productResponse = http.get('http://product-service:5001/api/products');
     check(productResponse, { 'status was 200': (r) => r.status === 200 });
 
     // Simulate requests to the order service
-    let orderResponse = http.get('http://localhost:5002/orders');
+    let orderResponse = http.get('http://order-service:5002/api/orders');
     check(orderResponse, { 'status was 200': (r) => r.status === 200 });
 
     // Simulate requests to the inventory service
-    let inventoryResponse = http.get('http://localhost:5003/inventory');
-    check(inventoryResponse, { 'status was 200': (r) => r.status === 200 });
+    let inventoryResponse = http.get('http://inventory-service:5003/inventory/prod_123');    check(inventoryResponse, { 'status was 200': (r) => r.status === 200 });
 
     sleep(1); // Sleep for 1 second between iterations
 }
